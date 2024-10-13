@@ -1,0 +1,106 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct nod1 {
+    char *info;
+    struct nod1 *sig;
+} TNodo;
+
+TNodo *crearNodo(char *cadena) {
+    TNodo *Aux = (TNodo *)malloc(sizeof(TNodo));
+    if (Aux) {
+        Aux->info = strdup(cadena);
+        Aux->sig = NULL;
+    }
+    return Aux;
+}
+
+void insertarFinal(TNodo **cab, char *Nom) {
+    TNodo *Corre, *Aux = crearNodo(Nom);
+    if (Aux) {
+        if (*cab == NULL) {
+            *cab = Aux;
+        } else {
+            Corre = *cab;
+            while (Corre->sig) {
+                Corre = Corre->sig;
+            }
+            Corre->sig = Aux;
+        }
+    }
+}
+
+void imprimirLista(TNodo *cab) {
+    TNodo *temp = cab;
+    while (temp) {
+        printf("%s", temp->info);
+        temp = temp->sig;
+    }
+}
+
+void liberarLista(TNodo *cab) {
+    TNodo *temp;
+    while (cab) {
+        temp = cab;
+        cab = cab->sig;
+        free(temp->info);
+        free(temp);
+    }
+}
+
+void llenarLista(FILE *Arch, TNodo **cab) {
+    char linea[10]; 
+    while (fgets(linea, sizeof(linea), Arch)) {
+        insertarFinal(cab, linea);
+    }
+}
+
+void NuevoArchivo(char *Nom) {
+    char Expre[25];
+    int otro;
+    FILE *Arch = fopen(Nom, "w");
+
+
+    do {
+        printf("Ingrese la expresion:\n");
+        scanf(" %[^\n]", Expre);
+        fprintf(Arch, "%s\n", Expre);
+        printf("¿Insertar otro (1: si, 2: no)? ");
+        scanf("%d", &otro);
+        getchar(); 
+    } while (otro == 1);
+
+    fclose(Arch);
+}
+
+void menu() {
+    TNodo *cab = NULL;
+    FILE *Arch;
+    int opcion;
+    char Nom[30];
+
+    printf("Dame la opcion a realizar:\n");
+    printf("1. Leer archivo default:\n2. Crear nuevo archivo:\n");
+    scanf("%d", &opcion);
+    getchar(); 
+
+    if (opcion == 1) {
+        Arch = fopen("Apuntador.txt", "r");
+    } else {
+        printf("Dame el nombre del archivo a crear: ");
+        scanf("%s", Nom);
+        NuevoArchivo(Nom); 
+        Arch = fopen(Nom, "r");
+    }
+
+
+    llenarLista(Arch, &cab);
+    imprimirLista(cab); 
+    liberarLista(cab); 
+    fclose(Arch); 
+}
+
+int main() {
+    menu();
+}
