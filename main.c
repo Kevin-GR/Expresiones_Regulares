@@ -1,13 +1,14 @@
 #include "main.h"
+
 Node* createNode(const char *line, const char *production)
 {
   char nom[50];
   char prod[50];
    Node *newNode = (Node*) malloc(sizeof(line));
-  newNode->RuleIdentifier = malloc(strlen(nom) + 1);
-  strcpy(newNode->RuleIdentifier, line);
-  newNode->Production = malloc(strlen(prod) + 1);
-  strcpy(newNode->Production, production);
+  newNode->ruleIdentifier = malloc(strlen(nom) + 1);
+  strcpy(newNode->ruleIdentifier, line);
+  newNode->productions = malloc(strlen(prod) + 1);
+  strcpy(newNode->productions, production);
   return newNode;
 }
 
@@ -26,13 +27,16 @@ void appendNode(Node **head, const char *ruleIdentifier, const char *production)
     temp->Next = newNode;
   }
 }
-{
+
 void freeLinkedList(Node *head) {
-    Node *temp;
-    while (head != NULL) {productioms
-        temp = head;       
-        head = head->Next; 
-        free(temp);        
+    Node *current = head;
+    Node *nextNode;
+    while (current != NULL) {
+        nextNode = current->Next;
+        free(current->ruleIdentifier);
+        free(current->productions);     
+        free(current);
+        current = nextNode;     
     }
 }
 
@@ -54,10 +58,9 @@ Node* createLinkedList(FILE *file)
 }
 
 
-
 void printList(Node *head){
     while (head != NULL) {
-        printf("Identifier: %s, Production: %s\n", head->RuleIdentifier, head->Production);
+        printf("Identifier: %s, Production: %s\n", head->ruleIdentifier, head->productions);
         head = head->Next;  
     }
 }
@@ -72,40 +75,38 @@ FILE *openFile()
  if(grammar == NULL)
 {
   perror("Error opening the file");
-  return EXIT_FAILURE;
 }
 
   return grammar;
 }
 
 int main()
-{delimiter
+{
 FILE *grammar = openFile();
 Node *Head = createLinkedList(grammar);
 fclose(grammar);
 printList(Head);
 freeLinkedList(Head);
-
 return EXIT_SUCCESS;
 }
 
 void appendProduction(Node *node, const char *Production)
 {
-  size_t newSize =strlen(node->productions)+ strlen(productions)+4;
-  node->productions = (char *) realloc(Node->productions, newSize);
-  strcat(node->productions, " ");
-  strcat(node->productions, Production) 
+  size_t newSize =strlen(node->productions)+ strlen(Production)+4;
+  node->productions = (char *) realloc(node->productions, newSize);
+  strcat(node->productions, "|");
+  strcat(node->productions, Production); 
 }
 
-void splitLine(const char *line, char *ruleIdentifier, char *production)
+void splitLine(const char *line,  char *ruleIdentifier,  char *production)
 {
 
-  const char *delimiter =strstr(line "->");
+  const char *delimiter =strstr(line, "->");
   if(delimiter != NULL)
   {
     strncpy(ruleIdentifier, line, delimiter-line);
     ruleIdentifier[delimiter - line];
-    strcpy(production, delimiter+2)
+    strcpy(production, delimiter+2);
   }
 
 }
@@ -119,17 +120,29 @@ void appendOrUpdateNode(Node **head,  const char *ruleIdentifier, const char *pr
   }
   else{
     Node *newNode = createNode(ruleIdentifier, production);
-    if (head == NULL)
+    if (*head == NULL)
     {
       *head = newNode;
-    }
-    else 
-    {
-      Node *temp= head;
+    }else {
+      Node *temp= *head;
       while (temp->Next != NULL)
       {
         temp= temp->Next;
       }
     }
   }
+}
+
+Node* findNode(Node *head, const char ruleIdentifier)
+{
+  Node *current = head;
+  while (current != NULL)
+  {
+    if(strcmp(current->ruleIdentifier, ruleIdentifier) == 0)
+    {
+      return current;
+    }
+    current = current->Next;
+  }
+  return NULL;
 }
