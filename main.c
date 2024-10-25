@@ -1,32 +1,16 @@
 #include "main.h"
 
-Node* createNode(const char *line, const char *production)
+Node* createNode(const char *ruleIdentifier, const char *production)
 {
-  char nom[50];
-  char prod[50];
-   Node *newNode = (Node*) malloc(sizeof(line));
-  newNode->ruleIdentifier = malloc(strlen(nom) + 1);
-  strcpy(newNode->ruleIdentifier, line);
-  newNode->productions = malloc(strlen(prod) + 1);
-  strcpy(newNode->productions, production);
+ 
+   Node *newNode = (Node*) malloc(sizeof(ruleIdentifier));
+  newNode->ruleIdentifier = strdup(ruleIdentifier);
+  newNode->productions=strdup(production);
+  newNode->Next =NULL;
   return newNode;
 }
 
-void appendNode(Node **head, const char *ruleIdentifier, const char *production)
-{
-  Node *newNode = createNode(ruleIdentifier, production);
-  if(*head == NULL)
-  *head = newNode;
 
-  else
-  {
-    Node *temp = *head;
-    while (temp->Next != NULL){
-    temp = temp->Next;
-    }
-    temp->Next = newNode;
-  }
-}
 
 void freeLinkedList(Node *head) {
     Node *current = head;
@@ -133,7 +117,7 @@ void appendOrUpdateNode(Node **head,  const char *ruleIdentifier, const char *pr
   }
 }
 
-Node* findNode(Node *head, const char ruleIdentifier)
+Node* findNode(Node *head, const char *ruleIdentifier)
 {
   Node *current = head;
   while (current != NULL)
